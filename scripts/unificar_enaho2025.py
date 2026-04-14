@@ -8,58 +8,61 @@
 ##     y garantizando reproducibilidad académica.
 ##
 ##     Este script:
-##       1. Lee los CSV trimestrales desde /datos/crudo/
+##       1. Lee los CSV trimestrales desde /data/raw/
 ##       2. Verifica consistencia de columnas
 ##       3. Concatena los cuatro trimestres
-##       4. Exporta la base anual a /datos/procesado/
+##       4. Exporta la base anual a /data/processed/
 ##
 ## ============================================================
 
-### Importación de librerías necesarias
 import pandas as pd
 import os
 
-### Definir paths relativos a las carpetas del repositorio
-PATH_CRUDO = "../datos/crudo/"
-PATH_PROCESADO = "../datos/procesado/"
+## ============================================================
+## DEFINICIÓN DE RUTAS
+## ============================================================
 
-### Listado explícito de archivos trimestrales
-### Esto asegura control académico y evita lecturas accidentales
+PATH_CRUDO = "../data/raw/"
+PATH_PROCESADO = "../data/processed/"
+
+## ============================================================
+## ARCHIVOS TRIMESTRALES (RENOMBRADOS)
+## ============================================================
+
 archivos_trimestrales = [
-    "Enaho001-2025- 100-Trimestre 1.csv",
-    "Enaho001-2025- 100- Trimestre 2.csv",
-    "Enaho001-2025- 100- Trimestre 3.csv",
-    "Enaho001-2025- 100- Trimestre 4.csv"
-
+    "ENAHO_2025_T1.csv",
+    "ENAHO_2025_T2.csv",
+    "ENAHO_2025_T3.csv",
+    "ENAHO_2025_T4.csv"
 ]
 
-### Lista donde se almacenarán los DataFrames cargados
 bases = []
 
 ## ============================================================
 ## LECTURA DE ARCHIVOS
 ## ============================================================
 
+print("=== INICIANDO UNIFICACIÓN DE ENAHO 2025 ===\n")
+
 for archivo in archivos_trimestrales:
     ruta = os.path.join(PATH_CRUDO, archivo)
-    
-    ### Verificación académica: existencia del archivo
+
+    print(f"Verificando archivo: {ruta}")
+
     if not os.path.exists(ruta):
         raise FileNotFoundError(f"El archivo no existe: {ruta}")
-    
-    ### Lectura del CSV
+
     df = pd.read_csv(ruta, encoding="latin-1")
-    
-    ### Agregar columna indicadora del trimestre (útil para auditoría)
-    df["trimestre"] = archivo
-    
+    df["trimestre"] = archivo  # útil para auditoría
+
+    print(f"  ✔ Cargado correctamente ({df.shape[0]} filas, {df.shape[1]} columnas)\n")
+
     bases.append(df)
 
 ## ============================================================
 ## VERIFICACIÓN DE CONSISTENCIA DE COLUMNAS
 ## ============================================================
 
-### Extraemos las columnas del primer trimestre como referencia
 columnas_ref = set(bases[0].columns)
 
 for i, df in enumerate(bases[1:], start=2):
@@ -67,23 +70,23 @@ for i, df in enumerate(bases[1:], start=2):
     if columnas_actual != columnas_ref:
         raise ValueError(f"Inconsistencia de columnas detectada en el trimestre {i}")
 
-### Si llegamos aquí, las columnas son consistentes
+print("✔ Todas las columnas son consistentes entre trimestres.\n")
 
 ## ============================================================
-## CONCATENACIÓN DE LOS TRIMESTRES
+## CONCATENACIÓN
 ## ============================================================
 
 enaho2025_anual = pd.concat(bases, ignore_index=True)
+print(f"✔ Base anual creada: {enaho2025_anual.shape[0]} filas totales.\n")
 
 ## ============================================================
-## EXPORTACIÓN DE LA BASE ANUAL
+## EXPORTACIÓN
 ## ============================================================
 
-### Crear carpeta procesado si no existe
 os.makedirs(PATH_PROCESADO, exist_ok=True)
 
 salida_csv = os.path.join(PATH_PROCESADO, "ENAHO2025_anual.csv")
 enaho2025_anual.to_csv(salida_csv, index=False, encoding="latin-1")
 
-print("Proceso completado con éxito.")
+print("=== PROCESO COMPLETADO ===")
 print(f"Base anual generada en: {salida_csv}")
