@@ -4,10 +4,10 @@ Esta carpeta contiene los archivos originales de la Encuesta Nacional de Hogares
 
 ## Archivos incluidos
 
-- Enaho01-2025-100- Trimestre 1.csv  
-- Enaho01-2025-100- Trimestre 2.csv  
-- Enaho01-2025-100- Trimestre 3.csv  
-- Enaho01-2025-100 - Trimestre 4.csv  
+ENAHO_2025_T1.csv
+ENAHO_2025_T2.csv
+ENAHO_2025_T3.csv
+ENAHO_2025_T4.csv
 
 ## Descripción
 
